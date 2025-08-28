@@ -1,12 +1,12 @@
-# Self-hosted AI starter kit
+# AI Stack
 
-**Self-hosted AI Starter Kit** is an open-source Docker Compose template designed to swiftly initialize a comprehensive local AI and low-code development environment.
+**AI Stack** is an open-source Docker Compose template designed to swiftly initialize a comprehensive local AI and low-code development environment.
 
-![n8n.io - Screenshot](https://raw.githubusercontent.com/n8n-io/self-hosted-ai-starter-kit/main/assets/n8n-demo.gif)
+![n8n.io - Screenshot](assets/n8n-demo.gif)
 
-Curated by <https://github.com/n8n-io>, it combines the self-hosted n8n
-platform with a curated list of compatible AI products and components to
-quickly get started with building self-hosted AI workflows.
+Curated by <https://github.com/fromtheroot>, and built on [n8n](https://n8n.io/), it combines the self-hosted n8n
+platform with a curated set of compatible AI products and components to quickly get started with
+building self-hosted AI workflows.
 
 > [!TIP]
 > [Read the announcement](https://blog.n8n.io/self-hosted-ai/)
@@ -40,8 +40,8 @@ Engineering world, handles large amounts of data safely.
 ### Cloning the Repository
 
 ```bash
-git clone https://github.com/n8n-io/self-hosted-ai-starter-kit.git
-cd self-hosted-ai-starter-kit
+git clone https://github.com/fromtheroot/ai-stack.git
+cd ai-stack
 cp .env.example .env # you should update secrets and passwords inside
 ```
 
@@ -50,8 +50,8 @@ cp .env.example .env # you should update secrets and passwords inside
 #### For Nvidia GPU users
 
 ```bash
-git clone https://github.com/n8n-io/self-hosted-ai-starter-kit.git
-cd self-hosted-ai-starter-kit
+git clone https://github.com/fromtheroot/ai-stack.git
+cd ai-stack
 cp .env.example .env # you should update secrets and passwords inside
 docker compose --profile gpu-nvidia up
 ```
@@ -63,8 +63,8 @@ docker compose --profile gpu-nvidia up
 ### For AMD GPU users on Linux
 
 ```bash
-git clone https://github.com/n8n-io/self-hosted-ai-starter-kit.git
-cd self-hosted-ai-starter-kit
+git clone https://github.com/fromtheroot/ai-stack.git
+cd ai-stack
 cp .env.example .env # you should update secrets and passwords inside
 docker compose --profile gpu-amd up
 ```
@@ -79,13 +79,13 @@ to the Docker instance, unfortunately. There are two options in this case:
 2. Run Ollama on your Mac for faster inference, and connect to that from the
    n8n instance
 
-If you want to run Ollama on your mac, check the
+If you want to run Ollama on your Mac, check the
 [Ollama homepage](https://ollama.com/)
 for installation instructions, and run the starter kit as follows:
 
 ```bash
-git clone https://github.com/n8n-io/self-hosted-ai-starter-kit.git
-cd self-hosted-ai-starter-kit
+git clone https://github.com/fromtheroot/ai-stack.git
+cd ai-stack
 cp .env.example .env # you should update secrets and passwords inside
 docker compose up
 ```
@@ -104,15 +104,15 @@ If you're running OLLAMA locally on your Mac (not in Docker), you need to modify
 #### For everyone else
 
 ```bash
-git clone https://github.com/n8n-io/self-hosted-ai-starter-kit.git
-cd self-hosted-ai-starter-kit
+git clone https://github.com/fromtheroot/ai-stack.git
+cd ai-stack
 cp .env.example .env # you should update secrets and passwords inside
 docker compose --profile cpu up
 ```
 
 ## ⚡️ Quick start and usage
 
-The core of the Self-hosted AI Starter Kit is a Docker Compose file, pre-configured with network and storage settings, minimizing the need for additional installations.
+The core of AI Stack is a Docker Compose setup, pre-configured with network and storage settings, minimizing the need for additional installations.
 After completing the installation steps above, simply follow the steps below to get started.
 
 1. Open <http://localhost:5678/> in your browser to set up n8n. You’ll only
@@ -205,7 +205,7 @@ your local n8n instance.
 
 ### Accessing local files
 
-The self-hosted AI starter kit will create a shared folder (by default,
+AI Stack will create a shared folder (by default,
 located in the same directory) which is mounted to the n8n container and
 allows n8n to access files on disk. This folder within the n8n container is
 located at `/data/shared` -- this is the path you’ll need to use in nodes that
@@ -246,8 +246,8 @@ These compose files are ready to run behind a reverse proxy with automatic HTTPS
 
 4. Clone the repo and configure environment
    ```bash
-   git clone https://github.com/n8n-io/self-hosted-ai-starter-kit.git
-   cd self-hosted-ai-starter-kit
+   git clone https://github.com/fromtheroot/ai-stack.git
+   cd ai-stack
    cp .env.example .env
    # Edit .env and set strong secrets and your real domain/email
    ```
