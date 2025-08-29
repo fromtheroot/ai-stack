@@ -43,7 +43,7 @@ Reset local data (optional): `docker compose -f docker-compose.local.yml down -v
 
 ### Production (Traefik + HTTPS)
 
-1) Prereqs: DNS A record to your server, ports 80/443 open, Docker + Compose installed
+1) Prereqs: DNS A record to your server, ports 80/443 open (cloud firewalls like DigitalOcean Firewalls must allow 80/443; UFW on the server is fine), Docker + Compose installed
 
 2) Create `.env` (minimum)
 
@@ -75,19 +75,13 @@ Tip (generate secrets):
 openssl rand -base64 48
 ```
 
-3) Prepare certificates storage for Traefik
-
-```bash
-touch acme.json && chmod 600 acme.json
-```
-
-4) Start production stack
+3) Start production stack
 
 ```bash
 docker compose up -d
 ```
 
-5) Open: `https://<your-domain>`
+4) Open: `https://<your-domain>`
 
 Update (both modes):
 
@@ -337,25 +331,19 @@ These compose files are ready to run behind a reverse proxy with automatic HTTPS
    # Edit .env and set strong secrets and your real domain/email
    ```
 
-5. Prepare cert storage
-   ```bash
-   touch acme.json
-   chmod 600 acme.json
-   ```
-
-6. Start the stack
+5. Start the stack
    ```bash
    docker compose up -d
    ```
 
-7. Verify
+6. Verify
    ```bash
    docker compose logs -f traefik n8n | cat
    ```
    - Wait for Traefik to obtain certificates
    - Open `https://n8n.vibra-media.com` in your browser
 
-8. Updates
+7. Updates
    ```bash
    docker compose pull
    docker compose up -d --no-deps --remove-orphans
@@ -379,28 +367,21 @@ cp .env.example .env
 # - LETSENCRYPT_EMAIL=you@vibra-media.com
 ```
 
-### 2) Prepare certificate storage for Traefik
-
-```bash
-touch acme.json
-chmod 600 acme.json
-```
-
-### 3) Start the stack
+### 2) Start the stack
 
 ```bash
 docker compose up -d
 ```
 
-### 4) Check logs
+### 3) Check logs
 
 ```bash
 docker compose logs -f traefik n8n
 ```
 
-### 5) Access your instance
+### 4) Access your instance
 
-Open https://n8n.vibra-media.com in your browser. Traefik will automatically request and store a Let's Encrypt TLS certificate in `acme.json`.
+Open https://n8n.vibra-media.com in your browser. Traefik will automatically request and store a Let's Encrypt TLS certificate inside its `letsencrypt` Docker volume.
 
 Notes:
 
