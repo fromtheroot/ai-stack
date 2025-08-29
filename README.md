@@ -307,7 +307,7 @@ These compose files are ready to run behind a reverse proxy with automatic HTTPS
    - Add your SSH key
 
 2. Point DNS
-   - Create an A record: `n8n.vibra-media.com -> <your-droplet-ip>`
+   - Create an A record: `<your-domain> -> <your-droplet-ip>`
 
 3. Install Docker and Compose plugin
    ```bash
@@ -341,7 +341,7 @@ These compose files are ready to run behind a reverse proxy with automatic HTTPS
    docker compose logs -f traefik n8n | cat
    ```
    - Wait for Traefik to obtain certificates
-   - Open `https://n8n.vibra-media.com` in your browser
+   - Open `https://<your-domain>` in your browser
 
 7. Updates
    ```bash
@@ -353,7 +353,7 @@ These compose files are ready to run behind a reverse proxy with automatic HTTPS
 ### Prerequisites
 
 - Ubuntu server (e.g., DigitalOcean droplet) with Docker and Docker Compose plugin installed
-- DNS A record for your domain pointing to the server (e.g., `n8n.vibra-media.com`)
+- DNS A record for your domain pointing to the server (e.g., `<your-domain>`)
 - Firewall allows inbound ports 80 and 443
 
 ### 1) Configure environment
@@ -362,9 +362,9 @@ These compose files are ready to run behind a reverse proxy with automatic HTTPS
 cp .env.example .env
 # Edit .env and set at minimum:
 # - POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_DB
-# - N8N_HOST=n8n.vibra-media.com
-# - WEBHOOK_URL=https://n8n.vibra-media.com/
-# - LETSENCRYPT_EMAIL=you@vibra-media.com
+# - N8N_HOST=<your-domain>
+# - WEBHOOK_URL=https://<your-domain>/
+# - LETSENCRYPT_EMAIL=<you@example.com>
 ```
 
 ### 2) Start the stack
@@ -381,7 +381,7 @@ docker compose logs -f traefik n8n
 
 ### 4) Access your instance
 
-Open https://n8n.vibra-media.com in your browser. Traefik will automatically request and store a Let's Encrypt TLS certificate inside its `letsencrypt` Docker volume.
+Open https://<your-domain> in your browser. Traefik will automatically request and store a Let's Encrypt TLS certificate inside its `letsencrypt` Docker volume.
 
 Notes:
 
