@@ -293,11 +293,19 @@ You can use the provided script to interactively configure `.env` and start the 
 ./deploy.sh
 ```
 
+Usage and options:
+
+```bash
+./deploy.sh [--local | --help]
+# --local: run for local testing (no Traefik/HTTPS), exposes ports directly
+```
+
 The script will:
 
 - Ask for your domain (e.g., `n8n.vibra-media.com`) and Let's Encrypt email
 - Generate strong secrets for n8n
 - Optionally enable Qdrant and/or Ollama, and choose the runtime profile (CPU / GPU)
+- Optionally connect to an external Ollama host (sets `OLLAMA_HOST`) and skip starting the Ollama container
 - Create `acme.json` (600 permissions) and a `shared/` folder
 - Start the selected services with `docker compose`
 
@@ -315,6 +323,10 @@ This will:
 - Expose n8n directly on `http://localhost:5678`
 - Optionally expose Qdrant on `http://localhost:6333` and Ollama on `http://localhost:11434`
 - Create a `docker-compose.local.yml` override file for port exposure
+
+Notes:
+
+- If you select an external Ollama host during the script prompts, the Ollama container will not be started and `OLLAMA_HOST` will be written to `.env`.
 
 ### Prerequisites
 
