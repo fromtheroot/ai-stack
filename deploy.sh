@@ -43,6 +43,14 @@ note() { printf "[+] %s\n" "$*"; }
 warn() { printf "[!] %s\n" "$*"; }
 err() { printf "[x] %s\n" "$*" 1>&2; }
 
+# Portable yes/no helper (supports y/Y/yes/YES)
+is_yes() {
+  case "$1" in
+    y|Y|yes|YES) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
 require_cmd() {
   if ! command -v "$1" >/dev/null 2>&1; then
     err "Required command '$1' not found. Please install it and re-run."
@@ -75,7 +83,7 @@ if ! docker compose version >/dev/null 2>&1; then
   exit 1
 fi
 
-bold "Self-hosted AI Starter Kit - Deployment"
+bold "AI Stack - Deployment"
 
 if [[ "$LOCAL_MODE" == "true" ]]; then
   note "Local testing mode enabled (no Traefik/HTTPS)"
@@ -117,7 +125,7 @@ read_default "Enable Qdrant? (y/N)" "N" ENABLE_QDRANT
 read_default "Enable Ollama? (y/N)" "N" ENABLE_OLLAMA
 
 PROFILE="cpu"
-if [[ "${ENABLE_OLLAMA^^}" == "Y" ]]; then
+if is_yes "$ENABLE_OLLAMA"; then
   echo
   bold "Select runtime profile"
   read_default "Profile (cpu|gpu-nvidia|gpu-amd)" "cpu" PROFILE
@@ -131,7 +139,7 @@ fi
 read_default "Use external Ollama host instead of container? (y/N)" "N" EXT_OLLAMA
 OLLAMA_HOST_VAR=""
 OLLAMA_PORT_VAR=""
-if [[ "${EXT_OLLAMA^^}" == "Y" ]]; then
+if is_yes "$EXT_OLLAMA"; then
   read_default "Enter external Ollama host:port" "host.docker.internal:11434" EXT_OLLAMA_HOST
   OLLAMA_HOST_VAR="\nOLLAMA_HOST=${EXT_OLLAMA_HOST}"
   if [[ "$LOCAL_MODE" == "true" ]]; then
@@ -142,7 +150,7 @@ fi
 # 2) Prepare secrets and .env
 if [ -f .env ]; then
   read_default ".env already exists. Overwrite? (y/N)" "N" OVERWRITE_ENV
-  if [[ "${OVERWRITE_ENV^^}" != "Y" ]]; then
+  if ! is_yes "$OVERWRITE_ENV"; then
     err "Refusing to overwrite existing .env. Aborting."
     exit 1
   fi
@@ -210,10 +218,10 @@ if [[ "$LOCAL_MODE" == "false" ]]; then
   SERVICES+=(traefik)
 fi
 
-if [[ "${ENABLE_QDRANT^^}" == "Y" ]]; then
+if is_yes "$ENABLE_QDRANT"; then
   SERVICES+=(qdrant)
 fi
-if [[ "${ENABLE_OLLAMA^^}" == "Y" && "${EXT_OLLAMA^^}" != "Y" ]]; then
+if is_yes "$ENABLE_OLLAMA" && ! is_yes "$EXT_OLLAMA"; then
   case "$PROFILE" in
     cpu)
       SERVICES+=(ollama-cpu ollama-pull-llama-cpu)
@@ -238,7 +246,7 @@ services:
       - "5678:5678"
 EOF
 
-  if [[ "${ENABLE_QDRANT^^}" == "Y" ]]; then
+  if is_yes "$ENABLE_QDRANT"; then
     cat >> docker-compose.local.yml <<EOF
   qdrant:
     ports:
@@ -246,7 +254,7 @@ EOF
 EOF
   fi
 
-  if [[ "${ENABLE_OLLAMA^^}" == "Y" && "${EXT_OLLAMA^^}" != "Y" ]]; then
+  if is_yes "$ENABLE_OLLAMA" && ! is_yes "$EXT_OLLAMA"; then
     case "$PROFILE" in
       cpu)
         cat >> docker-compose.local.yml <<EOF
@@ -285,10 +293,10 @@ if [[ "$LOCAL_MODE" == "true" ]]; then
   note "Local testing setup complete!"
   note "Check logs:   docker compose logs -f n8n | cat"
   note "Open n8n:     http://localhost:5678"
-  if [[ "${ENABLE_QDRANT^^}" == "Y" ]]; then
+  if is_yes "$ENABLE_QDRANT"; then
     note "Open Qdrant:  http://localhost:6333"
   fi
-  if [[ "${ENABLE_OLLAMA^^}" == "Y" && "${EXT_OLLAMA^^}" != "Y" ]]; then
+  if is_yes "$ENABLE_OLLAMA" && ! is_yes "$EXT_OLLAMA"; then
     note "Open Ollama:  http://localhost:11434"
   fi
 else
