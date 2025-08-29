@@ -16,8 +16,7 @@ building self-hosted AI workflows.
 ✅ [**Self-hosted n8n**](https://n8n.io/) - Low-code platform with over 400
 integrations and advanced AI components
 
-✅ [**Ollama**](https://ollama.com/) - Cross-platform LLM platform to install
-and run the latest local LLMs
+✅ [**Ollama**](https://ollama.com/) - Recommended to install outside Docker for best performance
 
 ✅ [**Qdrant**](https://qdrant.tech/) - Open-source, high performance vector
 store with an comprehensive API
@@ -79,9 +78,7 @@ to the Docker instance, unfortunately. There are two options in this case:
 2. Run Ollama on your Mac for faster inference, and connect to that from the
    n8n instance
 
-If you want to run Ollama on your Mac, check the
-[Ollama homepage](https://ollama.com/)
-for installation instructions, and run the starter kit as follows:
+If you want to run Ollama on your Mac, install it directly on the host (outside Docker) for better performance. See the [Ollama homepage](https://ollama.com/) for installation instructions, then run the starter kit as follows:
 
 ```bash
 git clone https://github.com/fromtheroot/ai-stack.git
@@ -94,12 +91,12 @@ docker compose up
 
 If you're running OLLAMA locally on your Mac (not in Docker), you need to modify the OLLAMA_HOST environment variable
 
-1. Set OLLAMA_HOST to `host.docker.internal:11434` in your .env file. 
+1. Set OLLAMA_HOST to `localhost:11434` (or your host IP: `http://<IP>:11434`) in your .env file. 
 2. Additionally, after you see "Editor is now accessible via: <http://localhost:5678/>":
 
     1. Head to <http://localhost:5678/home/credentials>
     2. Click on "Local Ollama service"
-    3. Change the base URL to "http://host.docker.internal:11434/"
+    3. Change the base URL to "http://localhost:11434/" (or your host IP)
 
 #### For everyone else
 
@@ -139,6 +136,40 @@ language model and Qdrant as your vector store.
 > workflows. While it’s not fully optimized for production environments, it
 > combines robust components that work well together for proof-of-concept
 > projects. You can customize it to meet your specific needs
+
+## 🧪 Local deployment (docker-compose.local.yml)
+
+1) Copy environment and set recommended flags
+
+```bash
+cp .env.example .env
+# Recommended:
+# N8N_RUNNERS_ENABLED=true
+# N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+# If using Ollama outside Docker (recommended):
+# OLLAMA_HOST=localhost:11434
+```
+
+2) Start the stack with the local compose file
+
+```bash
+docker compose -f docker-compose.local.yml --profile cpu up -d
+# or: --profile gpu-nvidia / --profile gpu-amd
+```
+
+4) Open the app
+
+- n8n: `http://localhost:5678`
+- Qdrant (optional): `http://localhost:6333`
+- Ollama (optional): `http://localhost:11434`
+
+Reset local data (optional)
+
+```bash
+docker compose -f docker-compose.local.yml down -v
+```
+
+Note: If you change `POSTGRES_PASSWORD` after the first run, also clear volumes or revert to the original password to avoid auth failures.
 
 ## Upgrading
 
@@ -285,48 +316,6 @@ These compose files are ready to run behind a reverse proxy with automatic HTTPS
    docker compose create && docker compose --profile cpu up -d
    ```
 
-### One-command interactive deploy
-
-You can use the provided script to interactively configure `.env` and start the stack with Traefik:
-
-```bash
-./deploy.sh
-```
-
-Usage and options:
-
-```bash
-./deploy.sh [--local | --help]
-# --local: run for local testing (no Traefik/HTTPS), exposes ports directly
-```
-
-The script will:
-
-- Ask for your domain (e.g., `n8n.vibra-media.com`) and Let's Encrypt email
-- Generate strong secrets for n8n
-- Optionally enable Qdrant and/or Ollama, and choose the runtime profile (CPU / GPU)
-- Optionally connect to an external Ollama host (sets `OLLAMA_HOST`) and skip starting the Ollama container
-- Create `acme.json` (600 permissions) and a `shared/` folder
-- Start the selected services with `docker compose`
-
-#### Local testing
-
-For local testing without Traefik/HTTPS (direct port access):
-
-```bash
-./deploy.sh --local
-```
-
-This will:
-- Use `localhost` instead of a domain
-- Skip Traefik and Let's Encrypt setup
-- Expose n8n directly on `http://localhost:5678`
-- Optionally expose Qdrant on `http://localhost:6333` and Ollama on `http://localhost:11434`
-- Create a `docker-compose.local.yml` override file for port exposure
-
-Notes:
-
-- If you select an external Ollama host during the script prompts, the Ollama container will not be started and `OLLAMA_HOST` will be written to `.env`.
 
 ### Prerequisites
 
