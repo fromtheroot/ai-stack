@@ -2,6 +2,99 @@
 
 **AI Stack** is an open-source Docker Compose template designed to swiftly initialize a comprehensive local AI and low-code development environment.
 
+## Quick start: choose your setup
+
+### Local (no HTTPS, direct ports)
+
+1) Create `.env` (minimum)
+
+```bash
+cp .env.example .env
+# Required
+POSTGRES_USER=<your-user>
+POSTGRES_PASSWORD=<your-strong-password>
+POSTGRES_DB=<your-db>
+
+# Recommended
+N8N_RUNNERS_ENABLED=true
+N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+
+# Local n8n behind no proxy
+N8N_HOST=localhost
+N8N_PROTOCOL=http
+N8N_PORT=5678
+N8N_PATH=/
+N8N_PROXY_HOPS=0
+WEBHOOK_URL=http://localhost:5678/
+
+# If using Ollama outside Docker (recommended)
+# OLLAMA_HOST=localhost:11434
+```
+
+2) Start local stack
+
+```bash
+docker compose -f docker-compose.local.yml up -d
+```
+
+3) Open: `http://localhost:5678`
+
+Reset local data (optional): `docker compose -f docker-compose.local.yml down -v`
+
+### Production (Traefik + HTTPS)
+
+1) Prereqs: DNS A record to your server, ports 80/443 open, Docker + Compose installed
+
+2) Create `.env` (minimum)
+
+```bash
+cp .env.example .env
+# Required
+POSTGRES_USER=<your-user>
+POSTGRES_PASSWORD=<your-strong-password>
+POSTGRES_DB=<your-db>
+LETSENCRYPT_EMAIL=<you@example.com>
+N8N_ENCRYPTION_KEY=<random-48+ chars>
+N8N_USER_MANAGEMENT_JWT_SECRET=<random-48+ chars>
+
+# n8n behind Traefik
+N8N_HOST=<your-domain>
+N8N_PROTOCOL=https
+N8N_PORT=5678
+N8N_PATH=/
+N8N_PROXY_HOPS=1
+WEBHOOK_URL=https://<your-domain>/
+
+# If using Ollama outside Docker (recommended)
+# OLLAMA_HOST=<public-ip>:11434
+```
+
+Tip (generate secrets):
+
+```bash
+openssl rand -base64 48
+```
+
+3) Prepare certificates storage for Traefik
+
+```bash
+touch acme.json && chmod 600 acme.json
+```
+
+4) Start production stack
+
+```bash
+docker compose up -d
+```
+
+5) Open: `https://<your-domain>`
+
+Update (both modes):
+
+```bash
+docker compose pull && docker compose up -d --no-deps --remove-orphans
+```
+
 ![n8n.io - Screenshot](assets/n8n-demo.gif)
 
 Curated by <https://github.com/fromtheroot>, and built on [n8n](https://n8n.io/), it combines the self-hosted n8n
@@ -46,28 +139,6 @@ cp .env.example .env # you should update secrets and passwords inside
 
 ### Running n8n using Docker Compose
 
-#### For Nvidia GPU users
-
-```bash
-git clone https://github.com/fromtheroot/ai-stack.git
-cd ai-stack
-cp .env.example .env # you should update secrets and passwords inside
-docker compose --profile gpu-nvidia up
-```
-
-> [!NOTE]
-> If you have not used your Nvidia GPU with Docker before, please follow the
-> [Ollama Docker instructions](https://github.com/ollama/ollama/blob/main/docs/docker.md).
-
-### For AMD GPU users on Linux
-
-```bash
-git clone https://github.com/fromtheroot/ai-stack.git
-cd ai-stack
-cp .env.example .env # you should update secrets and passwords inside
-docker compose --profile gpu-amd up
-```
-
 #### For Mac / Apple Silicon users
 
 If you’re using a Mac with an M1 or newer processor, you can't expose your GPU
@@ -104,7 +175,7 @@ If you're running OLLAMA locally on your Mac (not in Docker), you need to modify
 git clone https://github.com/fromtheroot/ai-stack.git
 cd ai-stack
 cp .env.example .env # you should update secrets and passwords inside
-docker compose --profile cpu up
+docker compose up -d
 ```
 
 ## ⚡️ Quick start and usage
@@ -153,8 +224,7 @@ cp .env.example .env
 2) Start the stack with the local compose file
 
 ```bash
-docker compose -f docker-compose.local.yml --profile cpu up -d
-# or: --profile gpu-nvidia / --profile gpu-amd
+docker compose -f docker-compose.local.yml up -d
 ```
 
 4) Open the app
@@ -173,25 +243,9 @@ Note: If you change `POSTGRES_PASSWORD` after the first run, also clear volumes 
 
 ## Upgrading
 
-* ### For Nvidia GPU setups:
-
-```bash
-docker compose --profile gpu-nvidia pull
-docker compose create && docker compose --profile gpu-nvidia up
-```
-
-* ### For Mac / Apple Silicon users
-
 ```bash
 docker compose pull
-docker compose create && docker compose up
-```
-
-* ### For Non-GPU setups:
-
-```bash
-docker compose --profile cpu pull
-docker compose create && docker compose --profile cpu up
+docker compose up -d --no-deps --remove-orphans
 ```
 
 ## 👓 Recommended reading
@@ -290,18 +344,9 @@ These compose files are ready to run behind a reverse proxy with automatic HTTPS
    ```
 
 6. Start the stack
-   - CPU only:
-     ```bash
-     docker compose --profile cpu up -d
-     ```
-   - Nvidia GPU:
-     ```bash
-     docker compose --profile gpu-nvidia up -d
-     ```
-   - AMD GPU:
-     ```bash
-     docker compose --profile gpu-amd up -d
-     ```
+   ```bash
+   docker compose up -d
+   ```
 
 7. Verify
    ```bash
@@ -313,7 +358,7 @@ These compose files are ready to run behind a reverse proxy with automatic HTTPS
 8. Updates
    ```bash
    docker compose pull
-   docker compose create && docker compose --profile cpu up -d
+   docker compose up -d --no-deps --remove-orphans
    ```
 
 
@@ -343,19 +388,8 @@ chmod 600 acme.json
 
 ### 3) Start the stack
 
-CPU only:
 ```bash
-docker compose --profile cpu up -d
-```
-
-Nvidia GPU:
-```bash
-docker compose --profile gpu-nvidia up -d
-```
-
-AMD GPU:
-```bash
-docker compose --profile gpu-amd up -d
+docker compose up -d
 ```
 
 ### 4) Check logs
